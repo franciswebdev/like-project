@@ -32,7 +32,7 @@ provider:
 
 functions:
   api:
-    handler: handler.handler
+    handler: dist/lambda.handler
     events:
       - httpApi: "*"
 
