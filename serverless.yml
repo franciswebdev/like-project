@@ -30,9 +30,22 @@ provider:
   environment:
     USERS_TABLE: ${param:tableName}
 
+package:
+  exclude:
+    - node_modules/**
+    - layers/**
+
+layers:
+  cake:
+    path: layers
+    compatibleRuntimes:
+      - nodejs20.x
+
 functions:
   api:
     handler: dist/lambda.handler
+    layers:
+      - !Ref CakeLambdaLayer
     events:
       - httpApi: "*"
 

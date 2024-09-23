@@ -8,7 +8,8 @@
     "build": "nest build",
     "start": "nest start --watch",
     "start:debug": "nest start --debug --watch",
-    "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix"
+    "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
+    "deploy": "nest build && [[ -d layers/nodejs ]] || rm -rf layers/nodejs && mkdir -p layers/nodejs && cp -r node_modules layers/nodejs && sls deploy"
   },
   "dependencies": {
     "@aws-sdk/client-dynamodb": "^3.585.0",
@@ -25,6 +26,7 @@
   "devDependencies": {
     "@nestjs/cli": "^10.4.5",
     "@nestjs/platform-express": "^10.4.3",
+    "eslint": "^9.10.0",
     "typescript": "^5.6.2"
   }
 }

@@ -1,3 +1,4 @@
-node_modules
+layers
 .serverless
 dist
+node_modules
