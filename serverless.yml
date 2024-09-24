@@ -8,7 +8,8 @@ service: aws-like-project
 stages:
   default:
     params:
-      tableName: "users-table-${sls:stage}"
+      usersName: "users-table-${sls:stage}"
+      likesName: "likes-table-${sls:stage}"
 
 provider:
   name: aws
@@ -27,8 +28,10 @@ provider:
             - dynamodb:DeleteItem
           Resource:
             - Fn::GetAtt: [UsersTable, Arn]
+            - Fn::GetAtt: [LikesTable, Arn]
   environment:
-    USERS_TABLE: ${param:tableName}
+    USERS_TABLE: ${param:usersName}
+    LIKES_TABLE: ${param:likesName}
 
 package:
   exclude:
@@ -57,8 +60,23 @@ resources:
         AttributeDefinitions:
           - AttributeName: userId
             AttributeType: S
+          - AttributeName: songId
+            AttributeType: S
         KeySchema:
           - AttributeName: userId
             KeyType: HASH
+          - AttributeName: songId
+            KeyType: RANGE
         BillingMode: PAY_PER_REQUEST
-        TableName: ${param:tableName}
+        TableName: ${param:usersName}
+    LikesTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        AttributeDefinitions:
+          - AttributeName: songId
+            AttributeType: S
+        KeySchema:
+          - AttributeName: songId
+            KeyType: HASH
+        BillingMode: PAY_PER_REQUEST
+        TableName: ${param:likesName}
