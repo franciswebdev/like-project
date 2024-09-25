@@ -40,8 +40,18 @@ export class AppController {
     return this.appService.getHello();
   }
 
+  @Get('/like/:userId')
+  async getUserSongs(
+    @Param('userId') userId,
+    @Param('songId') songId,
+    @Response() res,
+  ) {
+    const user = await this.getUserAndSongs(userId);
+    res.json({ user });
+  }
+
   @Get('/like/:userId/:songId')
-  async getLikes(
+  async getUserSong(
     @Param('userId') userId,
     @Param('songId') songId,
     @Response() res,
@@ -50,7 +60,7 @@ export class AppController {
     res.json({ user });
   }
 
-  private async getUserAndSongs(userId: string, songId: string) {
+  private async getUserAndSongs(userId: string, songId?: string) {
     let res = null;
 
     try {
@@ -66,9 +76,8 @@ export class AppController {
       });
       const { Items, Count } = await this.docClient.send(command);
       this.logger.log(`Count of items = ${Count} for ${userId} and ${songId}`);
-      if (Items.length > 0) {
-        this.logger.log(Items);
-        res = Items.find((item) => item.songId.S === songId);
+      if (Count > 0) {
+        res = songId ? Items.find((item) => item.songId.S === songId) : Items;
       } else {
         this.logger.error(`No items found for ${userId}`);
       }
@@ -117,14 +126,11 @@ export class AppController {
       // - option 2 is mac address but is also not ideal
       // - option 3 or default is anything generated perhaps the timestamp the app is installed
 
-      //  find if existing user with liked songs
-      let userData = await this.getUserAndSongs(userId, songId);
-      if (!userData) {
-        this.logger.log(`User not found, creating one for ${userId}`);
-        userData = { userId, songId, ...rest };
-      } else {
-        this.logger.log(`User found, updating ${userId}`, userData);
-      }
+      const userData = {
+        userId,
+        songId,
+        ...rest,
+      };
       const usersParams = {
         TableName: this.USERS_TABLE,
         Item: userData,
