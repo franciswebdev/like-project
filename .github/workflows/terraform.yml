@@ -79,11 +79,18 @@ jobs:
 
     - name: Go to TF folder
       run: |
+        echo "Checking root"
+        ls -al
         cd terraform
+        echo "Checking terraform folder"
+        ls -al
 
     # Initialize a new or existing Terraform working directory by creating initial files, loading any remote state, downloading modules, etc.
     - name: Terraform Init
-      run: terraform init
+      run: |
+        echo "Checking terraform init"
+        ls -al
+        terraform init
 
     # Checks that all Terraform configuration files adhere to a canonical format
     - name: Terraform Format
@@ -97,7 +104,10 @@ jobs:
       # Note: It is recommended to set up a required "strict" status check in your repository for "Terraform Cloud". See the documentation on "strict" required status checks for more information: https://help.github.com/en/github/administering-a-repository/types-of-required-status-checks
     - name: Terraform Apply
       if: github.ref == 'refs/heads/"main"' && github.event_name == 'push'
-      run: terraform apply -auto-approve -input=false
+      run: |
+        echo "Checking terraform apply"
+        ls -al
+        terraform apply -auto-approve -input=false
 
     - name: Finishing
       run: |
