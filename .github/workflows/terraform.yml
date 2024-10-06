@@ -57,7 +57,7 @@ permissions:
 
 jobs:
   terraform:
-    name: 'Terraform'
+    name: 'Terraform go'
     runs-on: ubuntu-latest
     environment: production
 
