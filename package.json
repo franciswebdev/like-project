@@ -5,11 +5,11 @@
   "description": "Like Project",
   "license": "MIT",
   "scripts": {
-    "build": "nest build",
+    "build": "nest build && du -sh node_modules",
     "start": "nest start --watch",
     "start:debug": "nest start --debug --watch",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
-    "deploy": "nest build && [[ -d layers/nodejs ]] || rm -rf layers/nodejs && mkdir -p layers/nodejs && cp -r node_modules layers/nodejs && sls deploy && [[ -d layers/nodejs ]] || rm -rf layers/nodejs"
+    "deploy": "nest build && ./create-layer.sh && sls deploy"
   },
   "dependencies": {
     "@aws-sdk/client-dynamodb": "^3.585.0",
@@ -26,7 +26,9 @@
   "devDependencies": {
     "@nestjs/cli": "^10.4.5",
     "@nestjs/platform-express": "^10.4.3",
-    "eslint": "^9.10.0",
-    "typescript": "^5.6.2"
-  }
+    "@types/node": "^22.10.7",
+    "eslint": "^9.18.0",
+    "typescript": "^5.7.3"
+  },
+  "packageManager": "yarn@4.6.0"
 }
