@@ -6,7 +6,6 @@ import {
   NotFoundException,
   Param,
   Post,
-  Put,
   Response,
 } from '@nestjs/common';
 import { AppService } from './app.service';
@@ -17,9 +16,7 @@ import {
 } from '@aws-sdk/lib-dynamodb';
 import {
   DynamoDBClient,
-  GetItemCommand,
   QueryCommand,
-  ScanCommand,
 } from '@aws-sdk/client-dynamodb';
 
 @Controller()
