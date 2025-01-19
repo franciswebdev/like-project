@@ -14,10 +14,7 @@ import {
   GetCommand,
   PutCommand,
 } from '@aws-sdk/lib-dynamodb';
-import {
-  DynamoDBClient,
-  QueryCommand,
-} from '@aws-sdk/client-dynamodb';
+import { DynamoDBClient, QueryCommand } from '@aws-sdk/client-dynamodb';
 
 @Controller()
 export class AppController {
@@ -38,11 +35,7 @@ export class AppController {
   }
 
   @Get('/like/:userId')
-  async getUserSongs(
-    @Param('userId') userId,
-    @Param('songId') songId,
-    @Response() res,
-  ) {
+  async getUserSongs(@Param('userId') userId, @Response() res) {
     const user = await this.getUserAndSongs(userId);
     res.json({ user });
   }
@@ -91,12 +84,14 @@ export class AppController {
     let res = null;
 
     try {
-      const command = new GetCommand({
+      const params = {
         TableName: this.LIKES_TABLE,
         Key: {
           songId,
         },
-      });
+      };
+      this.logger.log(`Table ${params.TableName} and Key ${params.Key} --`);
+      const command = new GetCommand(params);
       const { Item } = await this.docClient.send(command);
       if (Item) {
         const { songId, likes } = Item;
@@ -105,6 +100,32 @@ export class AppController {
     } catch (error) {
       throw new NotFoundException(
         `Error on ${this.LIKES_TABLE}: ${error.message}`,
+      );
+    }
+
+    return res;
+  }
+
+  private async getUser(userId: string): Promise<{ userId: string; songs: string[] }> {
+    let res = null;
+
+    try {
+      const params = {
+        TableName: this.USERS_TABLE,
+        Key: {
+          userId,
+        },
+      };
+      this.logger.log(`Table ${params.TableName} and Key ${params.Key} --`);
+      const command = new GetCommand(params);
+      const { Item } = await this.docClient.send(command);
+      if (Item) {
+        const { userId, songs } = Item;
+        res = { userId, songs };
+      }
+    } catch (error) {
+      throw new NotFoundException(
+        `Error on ${this.USERS_TABLE}: ${error.message}`,
       );
     }
 
@@ -123,11 +144,16 @@ export class AppController {
       // - option 2 is mac address but is also not ideal
       // - option 3 or default is anything generated perhaps the timestamp the app is installed
 
-      const userData = {
-        userId,
-        songId,
-        ...rest,
-      };
+      let userData = await this.getUser(userId);
+      if (!userData) {
+        this.logger.log(`User not found, creating one for ${userId}`);
+        userData = { userId, songs: [songId] };
+      } else {
+        this.logger.log(`User found, updating for ${userId}`);
+        const foundSong = userData.songs.find(song => song === songId );
+        if (!foundSong) userData.songs.push(songId);
+      }
+
       const usersParams = {
         TableName: this.USERS_TABLE,
         Item: userData,
