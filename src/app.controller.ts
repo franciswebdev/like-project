@@ -1,4 +1,12 @@
-import { Body, Controller, Get, Logger, Post, Response } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Logger,
+  Param,
+  Post,
+  Response,
+} from '@nestjs/common';
 import { AppService } from './app.service';
 
 @Controller()
@@ -10,6 +18,13 @@ export class AppController {
   @Get()
   getHello(): string {
     return this.appService.getHello();
+  }
+
+  @Get('/liked/:songId')
+  async getLiked(@Param('songId') songId, @Response() res) {
+    let likesData = await this.appService.getSongLikes(songId);
+
+    return res.json({ ...likesData });
   }
 
   @Post('/like')
